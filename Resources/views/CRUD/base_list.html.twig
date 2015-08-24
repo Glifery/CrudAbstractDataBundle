@@ -1,0 +1,79 @@
+{#
+
+This file is part of the Sonata package.
+
+(c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+
+#}
+
+{% extends base_template %}
+
+{% block actions %}{% endblock %}
+
+{% block tab_menu %}{% endblock %}
+
+{% block list_table %}
+    <div class="box box-primary">
+        <div class="box-body table-responsive no-padding">
+            {% block list_table_top %}{% endblock %}
+            {% block list_header %}{% endblock %}
+            {% if datagrid.results.body|length > 0 %}
+                <table class="table table-bordered table-striped">
+                    {% block table_header %}
+                        <thead>
+                        <tr class="sonata-ba-list-field-header">
+                            {% for header_name in datagrid.results.header %}
+                                {% spaceless %}
+                                    <th class="sonata-ba-list-field-header-{{ header_name}}">{{ header_name }}</th>
+                                {% endspaceless %}
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                    {% endblock %}
+
+                    {% block table_body %}
+                        <tbody>
+                        {% for row in datagrid.results.body %}
+                            <tr>
+                                {% include crud.getTemplate('inner_list_row') %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    {% endblock %}
+
+                    {% block table_footer %}
+                        <tfoot>
+                            {#<tr>#}
+                                {#<th colspan="{{ datagrid.results.header|length }}">#}
+                                    {#<div class="form-inline">#}
+                                        {#<div class="pull-right">#}
+                                            {#{% block pager_results %}#}
+                                                {#{% include crud.getTemplate('pager_results') %}#}
+                                            {#{% endblock %}#}
+                                        {#</div>#}
+                                    {#</div>#}
+                                {#</th>#}
+                            {#</tr>#}
+                            {% block pager_links %}
+                                {% if datagrid.paginator.enabled %}
+                                    {% include crud.getTemplate('pager_links') %}
+                                {% else %}
+                                    no pager
+                                {% endif %}
+                            {% endblock %}
+                        {% endblock %}
+                        </tfoot>
+                </table>
+            {% else %}
+                <div class="callout callout-info">No results</div>
+            {% endif %}
+            {% block list_footer %}{% endblock %}
+            {% block list_table_bottom %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block list_filters %}{% endblock %}

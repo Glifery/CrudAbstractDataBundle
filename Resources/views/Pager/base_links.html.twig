@@ -1,0 +1,44 @@
+{#
+
+This file is part of the Sonata package.
+
+(c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+
+#}
+
+<tr>
+    <td colspan="{{ datagrid.results.header|length }}">
+        <div class="text-center">
+            <ul class="pagination">
+                {% if datagrid.paginator.amount > 2  %}
+                    <li><a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge(app.request.query.all|merge({'_page': 1 }))) }}">&laquo;</a></li>
+                {% endif %}
+
+                {#{% if admin.datagrid.pager.page != admin.datagrid.pager.previouspage %}#}
+                    {#<li><a href="{{ admin.generateUrl('list', admin.modelmanager.paginationparameters(admin.datagrid, admin.datagrid.pager.previouspage)) }}" title="{{ 'link_previous_pager'|trans({}, 'SonataAdminBundle') }}">&lsaquo;</a></li>#}
+                {#{% endif %}#}
+
+                {# Set the number of pages to display in the pager #}
+                {% for page in datagrid.paginator.pages %}
+                    {% if page.current %}
+                        <li class="active"><a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge(app.request.query.all|merge({'_page': page.index }))) }}">{{ page.index }}</a></li>
+                    {% else %}
+                        <li><a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge(app.request.query.all|merge({'_page': page.index }))) }}">{{ page.index }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {#{% if admin.datagrid.pager.page != admin.datagrid.pager.nextpage %}#}
+                    {#<li><a href="{{ admin.generateUrl('list', admin.modelmanager.paginationparameters(admin.datagrid, admin.datagrid.pager.nextpage)) }}" title="{{ 'link_next_pager'|trans({}, 'SonataAdminBundle') }}">&rsaquo;</a></li>#}
+                {#{% endif %}#}
+
+                {% if datagrid.paginator.amount > 2  %}
+                {#{% if admin.datagrid.pager.page != admin.datagrid.pager.lastpage and admin.datagrid.pager.lastpage != admin.datagrid.pager.nextpage %}#}
+                    <li><a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge(app.request.query.all|merge({'_page': datagrid.paginator.lastpage.index }))) }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </td>
+</tr>

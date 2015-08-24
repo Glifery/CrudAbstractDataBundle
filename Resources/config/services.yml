@@ -1,0 +1,36 @@
+parameters:
+    glifery_crud_abstract_data.event_listener.controller_event_handler.class: Glifery\CrudAbstractDataBundle\EventListener\ControllerEventHandler
+    glifery_crud_abstract_data.service.crud_route_manager.class: Glifery\CrudAbstractDataBundle\Service\CrudRouteManager
+    glifery_crud_abstract_data.service.crud_pool.class: Glifery\CrudAbstractDataBundle\Service\CrudPool
+    glifery_crud_abstract_data.service.crud_form_factory.class: Glifery\CrudAbstractDataBundle\Service\CrudFormFactory
+    glifery_crud_abstract_data.service.crud_datagrid_handler.class: Glifery\CrudAbstractDataBundle\Service\CrudDatagridHandler
+    glifery_crud_abstract_data.service.crud_pagination.class: Glifery\CrudAbstractDataBundle\Service\CrudPagination
+
+services:
+    glifery_crud_abstract_data.service.crud_pool:
+        class: %glifery_crud_abstract_data.service.crud_pool.class%
+        arguments:
+            RouteManager:    @glifery_crud_abstract_data.service.crud_route_manager
+            FormFactory:     @glifery_crud_abstract_data.service.crud_form_factory
+            DatagridHandler: @glifery_crud_abstract_data.service.crud_datagrid_handler
+            Pagination:      @glifery_crud_abstract_data.service.crud_pagination
+
+    glifery_crud_abstract_data.service.crud_route_manager:
+        class: %glifery_crud_abstract_data.service.crud_route_manager.class%
+        arguments: [@router]
+
+    glifery_crud_abstract_data.service.crud_form_factory:
+        class: %glifery_crud_abstract_data.service.crud_form_factory.class%
+        arguments: [@form.factory]
+
+    glifery_crud_abstract_data.service.crud_datagrid_handler:
+        class: %glifery_crud_abstract_data.service.crud_datagrid_handler.class%
+
+    glifery_crud_abstract_data.service.crud_pagination:
+        class: %glifery_crud_abstract_data.service.crud_pagination.class%
+
+    glifery_crud_abstract_data.event_listener.controller_event_handler:
+        class: %glifery_crud_abstract_data.event_listener.controller_event_handler.class%
+        arguments: [@router, @service_container]
+        tags:
+            - { name: kernel.event_listener, event: kernel.controller, method: onKernelController }
