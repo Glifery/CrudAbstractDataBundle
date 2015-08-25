@@ -6,6 +6,9 @@ parameters:
     glifery_crud_abstract_data.service.crud_datagrid_handler.class: Glifery\CrudAbstractDataBundle\Service\CrudDatagridHandler
     glifery_crud_abstract_data.service.crud_pagination.class: Glifery\CrudAbstractDataBundle\Service\CrudPagination
 
+    glifery_crud_abstract_data.service.field_type_handler.simple.class: Glifery\CrudAbstractDataBundle\Service\FieldTypeHandler\SimpleFieldTypeHandler
+    glifery_crud_abstract_data.service.field_type_handler.entity.class: Glifery\CrudAbstractDataBundle\Service\FieldTypeHandler\EntityFieldTypeHandler
+
 services:
     glifery_crud_abstract_data.service.crud_pool:
         class: %glifery_crud_abstract_data.service.crud_pool.class%
@@ -25,9 +28,23 @@ services:
 
     glifery_crud_abstract_data.service.crud_datagrid_handler:
         class: %glifery_crud_abstract_data.service.crud_datagrid_handler.class%
+        calls:
+            - ['registerFieldType', ['string', @glifery_crud_abstract_data.service.field_type_handler.simple, 'GliferyCrudAbstractDataBundle:FieldType:simple.html.twig']]
+            - ['registerFieldType', ['integer', @glifery_crud_abstract_data.service.field_type_handler.simple, 'GliferyCrudAbstractDataBundle:FieldType:simple.html.twig']]
+            - ['registerFieldType', ['float', @glifery_crud_abstract_data.service.field_type_handler.simple, 'GliferyCrudAbstractDataBundle:FieldType:simple.html.twig']]
+            - ['registerFieldType', ['array', @glifery_crud_abstract_data.service.field_type_handler.simple, 'GliferyCrudAbstractDataBundle:FieldType:array.html.twig']]
+            - ['registerFieldType', ['datetime', @glifery_crud_abstract_data.service.field_type_handler.simple, 'GliferyCrudAbstractDataBundle:FieldType:datetime.html.twig']]
+            - ['registerFieldType', ['entity', @glifery_crud_abstract_data.service.field_type_handler.entity, 'GliferyCrudAbstractDataBundle:FieldType:entity.html.twig']]
 
     glifery_crud_abstract_data.service.crud_pagination:
         class: %glifery_crud_abstract_data.service.crud_pagination.class%
+
+    glifery_crud_abstract_data.service.field_type_handler.simple:
+        class: %glifery_crud_abstract_data.service.field_type_handler.simple.class%
+
+    glifery_crud_abstract_data.service.field_type_handler.entity:
+        class: %glifery_crud_abstract_data.service.field_type_handler.entity.class%
+        arguments: [@doctrine.orm.entity_manager]
 
     glifery_crud_abstract_data.event_listener.controller_event_handler:
         class: %glifery_crud_abstract_data.event_listener.controller_event_handler.class%

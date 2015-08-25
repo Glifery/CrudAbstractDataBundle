@@ -1,0 +1,7 @@
+{% if field.value|length %}
+    <ul>
+        {% for item in field.value %}
+            <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}

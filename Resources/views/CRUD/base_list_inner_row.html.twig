@@ -1,3 +1,3 @@
-{% for value in row %}
-    <td>{{ value }}</td>
+{% for field in row %}
+    <td>{% include field.template %}</td>
 {% endfor %}

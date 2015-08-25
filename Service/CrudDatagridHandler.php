@@ -4,7 +4,9 @@ namespace Glifery\CrudAbstractDataBundle\Service;
 
 use Glifery\CrudAbstractDataBundle\DataObject\DataObjectInterface;
 use Glifery\CrudAbstractDataBundle\Exception\ConfigException;
+use Glifery\CrudAbstractDataBundle\Service\FieldTypeHandler\FieldTypeHandlerInterface;
 use Glifery\CrudAbstractDataBundle\Tools\Datagrid;
+use Glifery\CrudAbstractDataBundle\Tools\Field;
 use Glifery\CrudAbstractDataBundle\Tools\FormTools;
 use Symfony\Component\Form\Form;
 
@@ -12,6 +14,26 @@ use Symfony\Component\Form\Form;
 //TODO: register datagrid field types
 class CrudDatagridHandler
 {
+    /** @var array */
+    private $fieldTypeHandlers;
+
+    public function __construct()
+    {
+        $this->fieldTypeHandlers = array();
+    }
+
+    /**
+     * @param string $name
+     * @param FieldTypeHandlerInterface $fieldTypeHandler
+     */
+    public function registerFieldType($name, FieldTypeHandlerInterface $fieldTypeHandler, $template)
+    {
+        $this->fieldTypeHandlers[$name] = array(
+            'handler' => $fieldTypeHandler,
+            'template' => $template
+        );
+    }
+
     /**
      * @param Form $datagridForm
      * @return array|null
@@ -47,10 +69,10 @@ class CrudDatagridHandler
             $row = array();
 
             foreach ($datagrid->getFieldMapper()->getColumns() as $columnInfo) {
-                $value = $this->handleFieldMapping($object, $columnInfo);
+                $fieldObject = $this->handleFieldMapping($object, $columnInfo);
 
                 $columnName = $columnInfo['columnName'];
-                $row[$columnName] = $value;
+                $row[$columnName] = $fieldObject;
             }
 
             $table['body'][] = $row;
@@ -78,8 +100,40 @@ class CrudDatagridHandler
                 ));
         }
 
-        $value = $object->$methodName();
+        $rawValue = $object->$methodName();
 
-        return $value;
+        $fieldTypeHandlerInfo = $this->matchHandlerForField($columnInfo['columnType']);
+        /** @var FieldTypeHandlerInterface $fieldTypeHandler */
+        $fieldTypeHandler = $fieldTypeHandlerInfo['handler'];
+        $template = $fieldTypeHandlerInfo['template'];
+
+        $field = new Field();
+        $field->setName($columnInfo['columnName']);
+        $field->setType($columnInfo['columnType']);
+        $field->setValue($rawValue);
+        $field->setOptions($columnInfo['options']);
+        $field->setTemplate(isset($columnInfo['options']['template']) ? $columnInfo['options']['template'] : $template);
+        $field->setHandler($fieldTypeHandler);
+
+        $fieldTypeHandler->handleField($field, $object);
+
+        return $field;
+    }
+
+    /**
+     * @param $columnType
+     * @return array
+     * @throws ConfigException
+     */
+    private function matchHandlerForField($columnType)
+    {
+        foreach ($this->fieldTypeHandlers as $handlerType => $fieldTypeHandlerInfo) {
+            if ($columnType === $handlerType) return $fieldTypeHandlerInfo;
+        }
+
+        throw new ConfigException(sprintf(
+                'Handler for column with type \'%s\' not found. You must register FieldTypeHandler.',
+                $columnType
+            ));
     }
 }
