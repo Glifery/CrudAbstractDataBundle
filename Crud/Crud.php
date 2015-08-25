@@ -4,8 +4,10 @@ namespace Glifery\CrudAbstractDataBundle\Crud;
 
 use Glifery\CrudAbstractDataBundle\DataObject\DataObjectInterface;
 use Glifery\CrudAbstractDataBundle\Exception\ConfigException;
+use Glifery\CrudAbstractDataBundle\Exception\RouteException;
 use Glifery\CrudAbstractDataBundle\ObjectManager\ObjectManagerInterface;
 use Glifery\CrudAbstractDataBundle\Service\CrudPool;
+use Glifery\CrudAbstractDataBundle\Tools\CrudRoute;
 use Glifery\CrudAbstractDataBundle\Tools\Datagrid;
 use Glifery\CrudAbstractDataBundle\Tools\FieldMapper;
 use Glifery\CrudAbstractDataBundle\Tools\FormTools;
@@ -13,7 +15,6 @@ use Glifery\CrudAbstractDataBundle\Tools\ObjectCollection;
 use Glifery\CrudAbstractDataBundle\Tools\ObjectCriteria;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilder;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class Crud
@@ -73,7 +74,8 @@ class Crud
             'edit' => 'GliferyCrudAbstractDataBundle:CRUD:edit.html.twig',
             'inner_list_row' => 'GliferyCrudAbstractDataBundle:CRUD:list_inner_row.html.twig',
             'pager_results' => 'GliferyCrudAbstractDataBundle:Pager:results.html.twig',
-            'pager_links' => 'GliferyCrudAbstractDataBundle:Pager:links.html.twig'
+            'pager_links' => 'GliferyCrudAbstractDataBundle:Pager:links.html.twig',
+            'form_theme' => 'GliferyCrudAbstractDataBundle:Form:form_admin_fields.html.twig'
         );
     }
 
@@ -115,6 +117,14 @@ class Crud
     public function setLabel($label)
     {
         $this->label = $label;
+    }
+
+    /**
+     * @return CrudPool
+     */
+    public function getCrudPool()
+    {
+        return $this->crudPool;
     }
 
     /**
@@ -278,23 +288,76 @@ class Crud
     }
 
     /**
+     * @param DataObjectInterface $object
+     * @return mixed
+     */
+    public function id(DataObjectInterface $object)
+    {
+        return $object->identifier();
+    }
+
+    /**
+     * @param $routeName
+     * @return bool
+     */
+    public function hasRoute($routeName)
+    {
+        return ($this->crudPool->getRouteManager()->getCrudRoute($this, $routeName)) ? true : false;
+    }
+
+    /**
+     * @param string $routeName
+     * @param array $params
+     * @return string
+     * @throws RouteException
+     */
+    public function generateUrl($routeName, array $params = array())
+    {
+        $crudRoute = $this->getCrudRouteWithName($routeName);
+        $url = $this->crudPool->getRouteManager()->generateUrl($crudRoute, $params);
+
+        return $url;
+    }
+
+    /**
+     * @param string $routeName
+     * @param DataObjectInterface $object
+     * @return string
+     */
+    public function generateObjectUrl($routeName, DataObjectInterface $object)
+    {
+        $crudRoute = $this->getCrudRouteWithName($routeName);
+        $url = $this->crudPool->getRouteManager()->generateUrl($crudRoute, array('identifier' => $object->identifier()));
+
+        return $url;
+    }
+
+    /**
+     * @param string $routeName
+     * @return CrudRoute
+     * @throws RouteException
+     */
+    protected function getCrudRouteWithName($routeName)
+    {
+        if (!$crudRoute = $this->crudPool->getRouteManager()->getCrudRoute($this, $routeName)) {
+            throw new RouteException(sprintf(
+                    'There is no route with name \'%s\' for Crud class \'%s\'.',
+                    $routeName,
+                    $this->getCrudName()
+                ));
+        }
+
+        return $crudRoute;
+    }
+
+    /**
      * @return Form
      */
     protected function getDatagridForm()
     {
         $formBuilder = $this->crudPool->getFormFactory()->createFormBuilder();
         $this->configureDatagridFilters($formBuilder);
-        $form = $formBuilder
-//            ->add('_page_amount', 'choice', array(
-//                    'choices' => array(
-//                        10  => 10,
-//                        25  => 25,
-//                        50  => 50,
-//                        100 => 100
-//                    )
-//                ))
-            ->getForm()
-        ;
+        $form = $formBuilder->getForm();
 
         return $form;
     }

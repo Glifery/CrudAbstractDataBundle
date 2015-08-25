@@ -1,0 +1,13 @@
+{% macro render_groups(admin, form) %}
+    <div class="col-md-12">
+        <div class="box box-success">
+            <div class="box-body">
+                <div class="sonata-ba-collapsed-fields">
+                    {% for child in form.children %}
+                        {{ form_row(child) }}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}

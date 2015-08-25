@@ -90,4 +90,17 @@ class CrudRouteManager
 
         return null;
     }
-} 
+
+    /**
+     * @param CrudRoute $crudRoute
+     * @param array $params
+     * @return string
+     */
+    public function generateUrl(CrudRoute $crudRoute, array $params)
+    {
+        $routeName = $crudRoute->getRouteName();
+        $url = $this->router->generate($routeName, $params);
+
+        return $url;
+    }
+}

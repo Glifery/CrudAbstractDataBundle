@@ -1,0 +1,59 @@
+{% block form %}
+
+    {% set url = action %}
+
+    {% if not crud.crudPool.routeManager.getCrudRoute(crud, url) %}
+        <div>
+            Form not available
+        </div>
+    {% else %}
+        {{ form_start(form) }}
+            {% if form.vars.errors|length > 0 %}
+                <div class="sonata-ba-form-error">
+                    {{ form_errors(form) }}
+                </div>
+            {% endif %}
+
+            {% block sonata_pre_fieldsets %}
+                <div class="row">
+            {% endblock %}
+
+            {% block sonata_tab_content %}
+                <div class="col-md-12">
+                    {{ form_helper.render_groups(crud, form) }}
+                </div>
+            {% endblock %}
+
+            {% block sonata_post_fieldsets %}
+                </div>
+            {% endblock %}
+
+            {% block formactions %}
+                <div class="well well-small form-actions">
+                    {% if crud.id(object) is not null %}
+                        <button type="submit" class="btn btn-success" name="btn_update_and_edit"><i class="fa fa-save"></i> Update</button>
+
+                        {% if crud.hasRoute('list') %}
+                            <button type="submit" class="btn btn-success" name="btn_update_and_list"><i class="fa fa-save"></i> <i class="fa fa-list"></i> Update and return to list</button>
+                        {% endif %}
+
+                        {% if crud.hasRoute('delete') %}
+                            <a class="btn btn-danger" href="{{ crud.generateObjectUrl('delete', object) }}"><i class="fa fa-minus-circle"></i> Delete</a>
+                        {% endif %}
+                    {% else %}
+                        {% if crud.hasRoute('edit') %}
+                            <button class="btn btn-success" type="submit" name="btn_create_and_edit"><i class="fa fa-save"></i> Create</button>
+                        {% endif %}
+                        {% if crud.hasRoute('list') %}
+                            <button type="submit" class="btn btn-success" name="btn_create_and_list"><i class="fa fa-save"></i> <i class="fa fa-list"></i> Create and return to list</button>
+                        {% endif %}
+                        {% if crud.hasRoute('show') %}
+                            <button class="btn btn-success" type="submit" name="btn_create_and_show"><i class="fa fa-plus-circle"></i> Create and show</button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endblock formactions %}
+        {{ form_end(form) }}
+    {% endif%}
+
+{% endblock %}

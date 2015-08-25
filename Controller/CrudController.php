@@ -4,6 +4,7 @@ namespace Glifery\CrudAbstractDataBundle\Controller;
 
 use Glifery\CrudAbstractDataBundle\Crud\Crud;
 use Glifery\CrudAbstractDataBundle\DataObject\DataObjectInterface;
+use Glifery\CrudAbstractDataBundle\Exception\ConfigException;
 use Glifery\CrudAbstractDataBundle\Exception\RouteException;
 use Glifery\CrudAbstractDataBundle\Form\Type\DataFormTypeInterface;
 use Glifery\CrudAbstractDataBundle\Tools\CrudRoute;
@@ -53,13 +54,16 @@ class CrudController extends Controller
         if ($form->isValid()) {
             $object = $this->crud->createObject($object);
 
-            return $this->redirectTo('edit', $object);
+            return $this->redirectTo($object);
         }
+
+        $view = $form->createView();
+        $this->get('twig')->getExtension('form')->renderer->setTheme($view, $this->crud->getTemplate('form_theme'));
 
         return $this->render($this->crud->getTemplate('create'), array(
                 'action' => 'create',
                 'crud' => $this->crud,
-                'form' => $form->createView(),
+                'form' => $view,
                 'object' => $object
             ));
     }
@@ -77,13 +81,16 @@ class CrudController extends Controller
         if ($form->isValid()) {
             $object = $this->crud->updateObject($criteria, $object);
 
-            return $this->redirectTo('edit', $object);
+            return $this->redirectTo($object);
         }
+
+        $view = $form->createView();
+        $this->get('twig')->getExtension('form')->renderer->setTheme($view, $this->crud->getTemplate('form_theme'));
 
         return $this->render($this->crud->getTemplate('edit'), array(
                 'action' => 'edit',
                 'crud' => $this->crud,
-                'form' => $form->createView(),
+                'form' => $view,
                 'object' => $object
             ));
     }
@@ -94,48 +101,45 @@ class CrudController extends Controller
     }
 
     /**
-     * @param string $actionName
      * @param DataObjectInterface $object
      * @return RedirectResponse
      * @throws RouteException
      */
-    protected function redirectTo($actionName, DataObjectInterface $object = null)
+    protected function redirectTo(DataObjectInterface $object = null)
     {
-        //TODO: able redirect to another CRUD class
-
-        $crudRouteManager = $this->get('glifery_crud_abstract_data.service.crud_route_manager');
-        if (!$crudRoute = $crudRouteManager->getCrudRoute($this->crud, $actionName)) {
-            if (!$crudRoute = $crudRouteManager->getCrudRoute($this->crud, 'list')) {
-                throw new RouteException(sprintf('Action \'list\' for Crud \'%s\' not found.', $this->crud->getCrudName()));
-            }
+        if (null !== $this->get('request')->get('btn_update_and_list')) {
+            $url = $this->crud->generateUrl('list');
+        }
+        if (null !== $this->get('request')->get('btn_create_and_list')) {
+            $url = $this->crud->generateUrl('list');
+        }
+        if (null !== $this->get('request')->get('btn_update_and_edit')) {
+            $url = $this->crud->generateObjectUrl('edit', $object);
+        }
+        if (null !== $this->get('request')->get('btn_create_and_edit')) {
+            $url = $this->crud->generateObjectUrl('edit', $object);
         }
 
-        switch ($actionName) {
-            case 'edit':
-                if ($object) {
-                    $routeParams = array('identifier' => $object->identifier());
-                } else {
-                    return $this->redirectTo('list');
-                }
-                break;
-            default:
-                $routeParams = array();
-                break;
+        if (null !== $this->get('request')->get('btn_create_and_show')) {
+            $url = $this->crud->generateObjectUrl('show', $object);
         }
 
-        $url = $this->generateUrl($crudRoute->getRouteName(), $routeParams);
+        if (!$url) {
+            $url = $this->crud->generateUrl('list');
+        }
 
         return $this->redirect($url);
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $view
+     * @param array $parameters
+     * @param Response $response
+     * @return Response
+     * @throws ConfigException
      */
     public function render($view, array $parameters = array(), Response $response = null)
     {
-//        $parameters['admin']         = isset($parameters['admin']) ?
-//            $parameters['admin'] :
-//            $this->admin;
         $parameters['base_template'] = isset($parameters['base_template']) ?
             $parameters['base_template'] :
             $this->crud->getTemplate('base_template');
