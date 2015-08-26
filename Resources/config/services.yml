@@ -29,6 +29,7 @@ services:
     glifery_crud_abstract_data.service.crud_datagrid_handler:
         class: %glifery_crud_abstract_data.service.crud_datagrid_handler.class%
         calls:
+            - ['registerFieldType', ['boolean', @glifery_crud_abstract_data.service.field_type_handler.simple, 'GliferyCrudAbstractDataBundle:FieldType:boolean.html.twig']]
             - ['registerFieldType', ['string', @glifery_crud_abstract_data.service.field_type_handler.simple, 'GliferyCrudAbstractDataBundle:FieldType:simple.html.twig']]
             - ['registerFieldType', ['integer', @glifery_crud_abstract_data.service.field_type_handler.simple, 'GliferyCrudAbstractDataBundle:FieldType:simple.html.twig']]
             - ['registerFieldType', ['float', @glifery_crud_abstract_data.service.field_type_handler.simple, 'GliferyCrudAbstractDataBundle:FieldType:simple.html.twig']]

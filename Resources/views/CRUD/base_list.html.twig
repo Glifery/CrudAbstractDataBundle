@@ -49,8 +49,8 @@
                             {% block pager_links %}
                                 {% if datagrid.paginator.enabled %}
                                     {% include crud.getTemplate('pager_links') %}
-                                {% else %}
-                                    no pager
+                                {#{% else %}#}
+                                    {#no pager#}
                                 {% endif %}
                             {% endblock %}
                         {% endblock %}
