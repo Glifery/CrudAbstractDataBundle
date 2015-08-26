@@ -90,14 +90,22 @@ class CrudDatagridHandler
     private function handleFieldMapping(DataObjectInterface $object, array $columnInfo)
     {
         $columnName = $columnInfo['columnName'];
-        $methodName = 'get' . ucfirst($columnName);
+        $methodName1 = 'get' . ucfirst($columnName);
+        $methodName2 = 'is' . ucfirst($columnName);
 
-        if (!method_exists($object, $methodName)) {
+        if ((!method_exists($object, $methodName1)) && (!method_exists($object, $methodName2))) {
             throw new ConfigException(sprintf(
-                    'Tryin to map unexisted method %s of object.',
-                    $methodName,
+                    'Trying to map unexisted methods %s and %s of object.',
+                    $methodName1,
+                    $methodName2,
                     get_class($object)
                 ));
+        }
+
+        if (method_exists($object, $methodName1)) {
+            $methodName = $methodName1;
+        } else {
+            $methodName = $methodName2;
         }
 
         $rawValue = $object->$methodName();
