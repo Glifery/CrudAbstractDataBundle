@@ -1,0 +1,3 @@
+{% for action,label in field.options.actions %}
+    <a class="btn btn-default" href="{{ crud.generateObjectUrl(action, object) }}">{{ label }}</a>
+{% endfor %}

@@ -1,6 +1,12 @@
 {% extends base_template %}
 
-{% block actions %}{% endblock %}
+{% block actions %}
+    {% spaceless %}
+        {% if crud.hasRoute('create') %}
+            <li><a class="sonata-action-element" href="{{ crud.generateUrl('create') }}"><i class="fa fa-plus-circle"></i> Create</a></li>
+        {% endif %}
+    {% endspaceless %}
+{% endblock %}
 
 {% block tab_menu %}{% endblock %}
 
