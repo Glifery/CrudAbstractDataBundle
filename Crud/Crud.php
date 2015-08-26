@@ -13,11 +13,12 @@ use Glifery\CrudAbstractDataBundle\Tools\FieldMapper;
 use Glifery\CrudAbstractDataBundle\Tools\FormTools;
 use Glifery\CrudAbstractDataBundle\Tools\ObjectCollection;
 use Glifery\CrudAbstractDataBundle\Tools\ObjectCriteria;
+use Symfony\Component\DependencyInjection\ContainerAware;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
-class Crud
+class Crud extends ContainerAware
 {
     /** @var string */
     protected $crudName;
@@ -272,6 +273,17 @@ class Crud
         $object = $this->objectManager->updateObject($criteria, $object);
 
         return $object;
+    }
+
+    /**
+     * @param ObjectCriteria $criteria
+     * @return bool
+     */
+    public function deleteObject(ObjectCriteria $criteria)
+    {
+        $isDeleted = $this->objectManager->deleteObject($criteria);
+
+        return $isDeleted;
     }
 
     /**

@@ -1,3 +1,3 @@
 {% for action,label in field.options.actions %}
-    <a class="btn btn-default" href="{{ crud.generateObjectUrl(action, object) }}">{{ label }}</a>
+    {% if crud.hasRoute(action) %}<a class="btn btn-default" href="{{ crud.generateObjectUrl(action, field.object) }}">{{ label }}</a>{% endif %}
 {% endfor %}

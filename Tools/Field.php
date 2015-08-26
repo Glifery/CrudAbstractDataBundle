@@ -2,6 +2,7 @@
 
 namespace Glifery\CrudAbstractDataBundle\Tools;
 
+use Glifery\CrudAbstractDataBundle\DataObject\DataObjectInterface;
 use Glifery\CrudAbstractDataBundle\Service\FieldTypeHandler\FieldTypeHandlerInterface;
 
 class Field
@@ -21,8 +22,8 @@ class Field
     /** @var string */
     private $template;
 
-    /** @var FieldTypeHandlerInterface */
-    private $handler;
+    /** @var DataObjectInterface */
+    private $object;
 
     /**
      * @return string
@@ -105,18 +106,18 @@ class Field
     }
 
     /**
-     * @return FieldTypeHandlerInterface
+     * @return DataObjectInterface
      */
-    public function getHandler()
+    public function getObject()
     {
-        return $this->handler;
+        return $this->object;
     }
 
     /**
-     * @param FieldTypeHandlerInterface $handler
+     * @param DataObjectInterface $object
      */
-    public function setHandler($handler)
+    public function setObject($object)
     {
-        $this->handler = $handler;
+        $this->object = $object;
     }
 }

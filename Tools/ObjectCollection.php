@@ -6,10 +6,21 @@ use Glifery\CrudAbstractDataBundle\DataObject\DataObjectInterface;
 
 class ObjectCollection
 {
+    /** @var array */
     private $dataObjects;
 
+    /** @var integer */
     private $amount;
 
+    public function __construct()
+    {
+        $this->dataObjects = array();
+        $this->amount = 0;
+    }
+
+    /**
+     * @param DataObjectInterface $dataObject
+     */
     public function addDataObject(DataObjectInterface $dataObject)
     {
         $this->dataObjects[] = $dataObject;

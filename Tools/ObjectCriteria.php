@@ -4,6 +4,8 @@ namespace Glifery\CrudAbstractDataBundle\Tools;
 
 class ObjectCriteria
 {
+    const IDENTIFIER = '_identifier';
+
     /** @var CriteriaArray */
     private $filter;
 

@@ -89,7 +89,40 @@ class CrudDatagridHandler
      */
     private function handleFieldMapping(DataObjectInterface $object, array $columnInfo)
     {
-        $columnName = $columnInfo['columnName'];
+        $rawValue = null;
+        if (isset($columnInfo['options']['mapped']) && ($columnInfo['options']['mapped'] === false)) {//TODO: refactor this
+
+        } else {
+            $columnName = $columnInfo['columnName'];
+            $rawValue = $this->getFieldRawValue($columnName, $object);
+        }
+
+        $fieldTypeHandlerInfo = $this->matchHandlerForField($columnInfo['columnType']);
+        /** @var FieldTypeHandlerInterface $fieldTypeHandler */
+        $fieldTypeHandler = $fieldTypeHandlerInfo['handler'];
+        $template = $fieldTypeHandlerInfo['template'];
+
+        $field = new Field();
+        $field->setName($columnInfo['columnName']);
+        $field->setType($columnInfo['columnType']);
+        $field->setValue($rawValue);
+        $field->setOptions($columnInfo['options']);
+        $field->setTemplate(isset($columnInfo['options']['template']) ? $columnInfo['options']['template'] : $template);
+        $field->setObject($object);
+
+        $fieldTypeHandler->handleField($field, $object);
+
+        return $field;
+    }
+
+    /**
+     * @param string $columnName
+     * @param DataObjectInterface $object
+     * @return mixed
+     * @throws ConfigException
+     */
+    private function getFieldRawValue($columnName, DataObjectInterface $object)
+    {
         $methodName1 = 'get' . ucfirst($columnName);
         $methodName2 = 'is' . ucfirst($columnName);
 
@@ -110,22 +143,7 @@ class CrudDatagridHandler
 
         $rawValue = $object->$methodName();
 
-        $fieldTypeHandlerInfo = $this->matchHandlerForField($columnInfo['columnType']);
-        /** @var FieldTypeHandlerInterface $fieldTypeHandler */
-        $fieldTypeHandler = $fieldTypeHandlerInfo['handler'];
-        $template = $fieldTypeHandlerInfo['template'];
-
-        $field = new Field();
-        $field->setName($columnInfo['columnName']);
-        $field->setType($columnInfo['columnType']);
-        $field->setValue($rawValue);
-        $field->setOptions($columnInfo['options']);
-        $field->setTemplate(isset($columnInfo['options']['template']) ? $columnInfo['options']['template'] : $template);
-        $field->setHandler($fieldTypeHandler);
-
-        $fieldTypeHandler->handleField($field, $object);
-
-        return $field;
+        return $rawValue;
     }
 
     /**

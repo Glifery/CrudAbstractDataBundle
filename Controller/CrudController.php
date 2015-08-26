@@ -95,9 +95,16 @@ class CrudController extends Controller
             ));
     }
 
-    public function deleteAction()
+    /**
+     * @return RedirectResponse
+     */
+    public function deleteAction($identifier)
     {
+        $criteria = $this->crud->createCriteriaByIdentifier($identifier);
 
+        $this->crud->deleteObject($criteria);
+
+        return $this->redirectTo();
     }
 
     /**
@@ -107,6 +114,7 @@ class CrudController extends Controller
      */
     protected function redirectTo(DataObjectInterface $object = null)
     {
+        $url = null;
         if (null !== $this->get('request')->get('btn_update_and_list')) {
             $url = $this->crud->generateUrl('list');
         }

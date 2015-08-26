@@ -44,9 +44,9 @@ interface ObjectManagerInterface
      */
     function updateObject(ObjectCriteria $criteria, DataObjectInterface $object);
 
-//    /**
-//     * @param ObjectCriteria $criteria
-//     * @return bool
-//     */
-//    function deleteObject(ObjectCriteria $criteria);
+    /**
+     * @param ObjectCriteria $criteria
+     * @return bool
+     */
+    function deleteObject(ObjectCriteria $criteria);
 }
