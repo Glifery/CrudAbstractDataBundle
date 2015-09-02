@@ -1,0 +1,30 @@
+parameters:
+    glifery_crud_abstract_data.service.crud_datagrid_handler.class: Glifery\CrudAbstractDataBundle\Service\CrudDatagridHandler
+
+    glifery_crud_abstract_data.service.field_type_handler.simple.class: Glifery\CrudAbstractDataBundle\Service\FieldTypeHandler\SimpleFieldTypeHandler
+    glifery_crud_abstract_data.service.field_type_handler.datetime.class: Glifery\CrudAbstractDataBundle\Service\FieldTypeHandler\DatetimeFieldTypeHandler
+    glifery_crud_abstract_data.service.field_type_handler.entity.class: Glifery\CrudAbstractDataBundle\Service\FieldTypeHandler\EntityFieldTypeHandler
+
+
+services:
+    glifery_crud_abstract_data.service.crud_datagrid_handler:
+        class: %glifery_crud_abstract_data.service.crud_datagrid_handler.class%
+        calls:
+            - ['registerFieldType', ['boolean', @glifery_crud_abstract_data.service.field_type_handler.simple, 'GliferyCrudAbstractDataBundle:FieldType:boolean.html.twig']]
+            - ['registerFieldType', ['string', @glifery_crud_abstract_data.service.field_type_handler.simple, 'GliferyCrudAbstractDataBundle:FieldType:simple.html.twig']]
+            - ['registerFieldType', ['integer', @glifery_crud_abstract_data.service.field_type_handler.simple, 'GliferyCrudAbstractDataBundle:FieldType:simple.html.twig']]
+            - ['registerFieldType', ['float', @glifery_crud_abstract_data.service.field_type_handler.simple, 'GliferyCrudAbstractDataBundle:FieldType:simple.html.twig']]
+            - ['registerFieldType', ['array', @glifery_crud_abstract_data.service.field_type_handler.simple, 'GliferyCrudAbstractDataBundle:FieldType:array.html.twig']]
+            - ['registerFieldType', ['datetime', @glifery_crud_abstract_data.service.field_type_handler.datetime, 'GliferyCrudAbstractDataBundle:FieldType:datetime.html.twig']]
+            - ['registerFieldType', ['entity', @glifery_crud_abstract_data.service.field_type_handler.entity, 'GliferyCrudAbstractDataBundle:FieldType:entity.html.twig']]
+            - ['registerFieldType', ['_actions', @glifery_crud_abstract_data.service.field_type_handler.simple, 'GliferyCrudAbstractDataBundle:FieldType:actions.html.twig']]
+
+    glifery_crud_abstract_data.service.field_type_handler.simple:
+        class: %glifery_crud_abstract_data.service.field_type_handler.simple.class%
+
+    glifery_crud_abstract_data.service.field_type_handler.datetime:
+        class: %glifery_crud_abstract_data.service.field_type_handler.datetime.class%
+
+    glifery_crud_abstract_data.service.field_type_handler.entity:
+        class: %glifery_crud_abstract_data.service.field_type_handler.entity.class%
+        arguments: [@doctrine.orm.entity_manager]

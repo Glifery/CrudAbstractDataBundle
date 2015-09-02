@@ -8,6 +8,7 @@ use Glifery\CrudAbstractDataBundle\Exception\ObjectManagerException;
 use Glifery\CrudAbstractDataBundle\Exception\RouteException;
 use Glifery\CrudAbstractDataBundle\ObjectManager\ObjectManagerInterface;
 use Glifery\CrudAbstractDataBundle\Service\CrudPool;
+use Glifery\CrudAbstractDataBundle\Service\CrudTemplateSet;
 use Glifery\CrudAbstractDataBundle\Tools\CrudRoute;
 use Glifery\CrudAbstractDataBundle\Tools\Datagrid;
 use Glifery\CrudAbstractDataBundle\Tools\ErrorMessage;
@@ -71,20 +72,8 @@ class Crud extends ContainerAware
     {
         $this->crudName = $crudName;
         $this->crudPool = $crudPool;
+        $this->templates = array();
         $this->errorMessages = array();
-
-        //TODO: replace default templates from here
-        $this->templates = array(
-            'base_template' => 'GliferyCrudAbstractDataBundle::standard_layout.html.twig',
-            'list' => 'GliferyCrudAbstractDataBundle:CRUD:list.html.twig',
-            'create' => 'GliferyCrudAbstractDataBundle:CRUD:edit.html.twig',
-            'edit' => 'GliferyCrudAbstractDataBundle:CRUD:edit.html.twig',
-            'inner_list_row' => 'GliferyCrudAbstractDataBundle:CRUD:list_inner_row.html.twig',
-            'pager_results' => 'GliferyCrudAbstractDataBundle:Pager:results.html.twig',
-            'pager_links' => 'GliferyCrudAbstractDataBundle:Pager:links.html.twig',
-            'form_theme' => 'GliferyCrudAbstractDataBundle:Form:form_admin_fields.html.twig',
-            'notifications' => 'GliferyCrudAbstractDataBundle:Block:notifications.html.twig'
-        );
     }
 
     /**
@@ -93,6 +82,12 @@ class Crud extends ContainerAware
     public function registerObjectManager(ObjectManagerInterface $objectManager)
     {
         $this->objectManager = $objectManager;
+    }
+
+    public function setTemplateSet(CrudTemplateSet $templateSet)
+    {
+        $templates = $templateSet->getTemplates();
+        $this->templates = array_merge($this->templates, $templates);
     }
 
     /**

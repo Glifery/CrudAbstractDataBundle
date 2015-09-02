@@ -1,0 +1,10 @@
+parameters:
+    glifery_crud_abstract_data.event_listener.controller_event_handler.class: Glifery\CrudAbstractDataBundle\EventListener\ControllerEventHandler
+
+
+services:
+    glifery_crud_abstract_data.event_listener.controller_event_handler:
+        class: %glifery_crud_abstract_data.event_listener.controller_event_handler.class%
+        arguments: [@router, @service_container]
+        tags:
+            - { name: kernel.event_listener, event: kernel.controller, method: onKernelController }

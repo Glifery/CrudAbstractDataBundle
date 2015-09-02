@@ -1,0 +1,17 @@
+parameters:
+    glifery_crud_abstract_data.service.crud_template_set.class: Glifery\CrudAbstractDataBundle\Service\CrudTemplateSet
+
+
+services:
+    glifery_crud_abstract_data.service.crud_template_set:
+        class: %glifery_crud_abstract_data.service.crud_template_set.class%
+        calls:
+            - [ 'setTemplate', ['base_template', 'GliferyCrudAbstractDataBundle::standard_layout.html.twig'] ]
+            - [ 'setTemplate', ['list', 'GliferyCrudAbstractDataBundle:CRUD:list.html.twig'] ]
+            - [ 'setTemplate', ['create', 'GliferyCrudAbstractDataBundle:CRUD:edit.html.twig'] ]
+            - [ 'setTemplate', ['edit', 'GliferyCrudAbstractDataBundle:CRUD:edit.html.twig'] ]
+            - [ 'setTemplate', ['inner_list_row', 'GliferyCrudAbstractDataBundle:CRUD:list_inner_row.html.twig'] ]
+            - [ 'setTemplate', ['pager_results', 'GliferyCrudAbstractDataBundle:Pager:results.html.twig'] ]
+            - [ 'setTemplate', ['pager_links', 'GliferyCrudAbstractDataBundle:Pager:links.html.twig'] ]
+            - [ 'setTemplate', ['form_theme', 'GliferyCrudAbstractDataBundle:Form:form_admin_fields.html.twig'] ]
+            - [ 'setTemplate', ['notifications', 'GliferyCrudAbstractDataBundle:Block:notifications.html.twig'] ]

@@ -16,23 +16,42 @@ class CrudTagCompilerPass implements CompilerPassInterface
     const CRUD_TAG_ATTRIBUTE_LABEL = 'label';
     const CRUD_METHOD_INIT = 'initAsCrud';
     const CRUD_METHOD_LABEL = 'setLabel';
-    const CRUD_METHOD_REGISTER_OM = 'registerObjectManager';
+    const CRUD_METHOD_REGISTER_OBJECT_MANAGER = 'registerObjectManager';
+    const CRUD_METHOD_REGISTER_TEMPLATE_SET = 'setTemplateSet';
+    const TEMPLATE_SET_DEFAULT_NAME = 'glifery_crud_abstract_data.service.crud_template_set';
 
     public function process(ContainerBuilder $container)
     {
-        $crudPoolService = $container->findDefinition(self::POOL_SERVICE_NAME);
+        $crudPoolDefinition = $container->findDefinition(self::POOL_SERVICE_NAME);
         $crudServices = $container->findTaggedServiceIds(self::CRUD_TAG_NAME);
 
-        foreach ($crudServices as $id => $tags) {
-            $crudDefinition = $container->getDefinition($id);
+        foreach ($crudServices as $crudName => $tags) {
+            $crudDefinition = $container->getDefinition($crudName);
 
-            $crudPoolService->addMethodCall(self::POOL_METHOD_REGISTER_CRUD, array($id, new Reference($id)));
+            $this->registerCrudInPool($crudName, $crudPoolDefinition);
+            $this->registerDefaultTemplateSet($crudDefinition, $container);
 
             foreach ($tags as $attributes) {
                 $this->processTagAttributes($crudDefinition, $container, $attributes);
             }
 
-            $this->callInitMethod($crudDefinition, $id, $crudPoolService);
+            $this->callCrudInitMethod($crudDefinition, $crudName, $crudPoolDefinition);
+        }
+    }
+
+    /**
+     * @param string $crudName
+     * @param Definition $crudPoolDefinition
+     */
+    private function registerCrudInPool($crudName, Definition $crudPoolDefinition)
+    {
+        $crudPoolDefinition->addMethodCall(self::POOL_METHOD_REGISTER_CRUD, array($crudName, new Reference($crudName)));
+    }
+
+    private function registerDefaultTemplateSet(Definition $crudDefinition, ContainerBuilder $container)
+    {
+        if ($templateSetDefinition = $container->findDefinition(self::TEMPLATE_SET_DEFAULT_NAME)) {
+            $this->callMethodFirst($crudDefinition, self::CRUD_METHOD_REGISTER_TEMPLATE_SET, array($templateSetDefinition));
         }
     }
 
@@ -49,7 +68,7 @@ class CrudTagCompilerPass implements CompilerPassInterface
             );
 
             $definition->addMethodCall(
-                self::CRUD_METHOD_REGISTER_OM,
+                self::CRUD_METHOD_REGISTER_OBJECT_MANAGER,
                 array($objectManagerDefinition)
             );
         }
@@ -63,12 +82,24 @@ class CrudTagCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * @param Definition $definition
+     * @param Definition $crudDefinition
      */
-    private function callInitMethod(Definition $definition, $crudName, Definition $crudPool)
+    private function callCrudInitMethod(Definition $crudDefinition, $crudName, Definition $crudPoolDefinition)
     {
-        $methodCalls = $definition->getMethodCalls();
-        array_unshift($methodCalls, array(self::CRUD_METHOD_INIT, array($crudName, $crudPool)));
-        $definition->setMethodCalls($methodCalls);
+        $this->callMethodFirst($crudDefinition, self::CRUD_METHOD_INIT, array($crudName, $crudPoolDefinition));
+    }
+
+    /**
+     * @param Definition $definition
+     * @param string $methodName
+     * @param array $arguments
+     */
+    private function callMethodFirst(Definition $definition, $methodName, array $arguments)
+    {
+        $newMethodCall = array($methodName, $arguments);
+
+        $currentMethodCalls = $definition->getMethodCalls();
+        array_unshift($currentMethodCalls, $newMethodCall);
+        $definition->setMethodCalls($currentMethodCalls);
     }
 }
