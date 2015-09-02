@@ -366,43 +366,51 @@ class Crud extends ContainerAware
     }
 
     /**
-     * @param string $routeName
+     * @param string $actionName
      * @param array $params
      * @return string
      * @throws RouteException
      */
-    public function generateUrl($routeName, array $params = array())
+    public function generateUrl($actionName, array $params = array(), $crudServiceName = null)
     {
-        $crudRoute = $this->getCrudRouteWithName($routeName);
+        $crudRoute = $this->findCrudRoute($actionName, $crudServiceName);
         $url = $this->crudPool->getRouteManager()->generateUrl($crudRoute, $params);
 
         return $url;
     }
 
     /**
-     * @param string $routeName
+     * @param string $actionName
      * @param DataObjectInterface $object
      * @return string
      */
-    public function generateObjectUrl($routeName, DataObjectInterface $object)
+    public function generateObjectUrl($actionName, DataObjectInterface $object, $crudServiceName = null)
     {
-        $crudRoute = $this->getCrudRouteWithName($routeName);
+        $crudRoute = $this->findCrudRoute($actionName, $crudServiceName);
         $url = $this->crudPool->getRouteManager()->generateUrl($crudRoute, array('identifier' => $object->identifier()));
 
         return $url;
     }
 
     /**
-     * @param string $routeName
+     * @param string $actionName
      * @return CrudRoute
      * @throws RouteException
      */
-    protected function getCrudRouteWithName($routeName)
+    protected function findCrudRoute($actionName, $crudServiceName = null)
     {
-        if (!$crudRoute = $this->crudPool->getRouteManager()->getCrudRoute($this, $routeName)) {
+        if ($crudServiceName) {
+            if (!$crud = $this->crudPool->findCrudByServiceName($crudServiceName)) {
+                throw new RouteException(sprintf('Crud class with service name \'%s\' don\'t register.', $crudServiceName));
+            }
+        } else {
+            $crud = $this;
+        }
+
+        if (!$crudRoute = $this->crudPool->getRouteManager()->getCrudRoute($crud, $actionName)) {
             throw new RouteException(sprintf(
-                    'There is no route with name \'%s\' for Crud class \'%s\'.',
-                    $routeName,
+                    'There is no route with action name \'%s\' for Crud class \'%s\'.',
+                    $actionName,
                     $this->getCrudName()
                 ));
         }

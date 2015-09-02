@@ -15,7 +15,7 @@ class CrudPool
     /** @var CrudDatagridHandler */
     private $datagridHandler;
 
-    /** @var array */
+    /** @var Crud[] */
     private $cruds;
 
     /** @var CrudPagination */
@@ -74,5 +74,31 @@ class CrudPool
     public function getPagination()
     {
         return $this->pagination;
+    }
+
+    /**
+     * @param string $label
+     * @return Crud|null
+     */
+    public function findCrudByLabel($label)
+    {
+        foreach ($this->cruds as $crud) {
+            if ($label == $crud->getLabel()) return $crud;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $serviceName
+     * @return Crud|null
+     */
+    public function findCrudByServiceName($serviceName)
+    {
+        if (isset($this->cruds[$serviceName])) {
+            return $this->cruds[$serviceName];
+        }
+
+        return null;
     }
 }
