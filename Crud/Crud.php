@@ -302,7 +302,7 @@ class Crud extends ContainerAware
     /**
      * @param ObjectCriteria $criteria
      * @param DataObjectInterface $object
-     * @return DataObjectInterface
+     * @return DataObjectInterface|null
      */
     public function updateObject(ObjectCriteria $criteria, DataObjectInterface $object)
     {
@@ -310,6 +310,8 @@ class Crud extends ContainerAware
             $object = $this->objectManager->updateObject($criteria, $object);
         } catch (ObjectManagerException $e) {
             $this->registerObjectManagerException($e);
+
+            return null;
         }
 
         return $object;

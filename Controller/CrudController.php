@@ -52,9 +52,9 @@ class CrudController extends Controller
         $request = $this->get('request');
         $form->handleRequest($request);
         if ($form->isValid()) {
-            $object = $this->crud->createObject($object);
+            $createdObject = $this->crud->createObject($object);
 
-            if ($redirect = $this->redirectTo($object)) {
+            if ($createdObject && ($redirect = $this->redirectTo($createdObject))) {
                 return $redirect;
             }
         }
@@ -81,9 +81,9 @@ class CrudController extends Controller
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            $object = $this->crud->updateObject($criteria, $object);
+            $updatedObject = $this->crud->updateObject($criteria, $object);
 
-            if ($redirect = $this->redirectTo($object)) {
+            if ($updatedObject && ($redirect = $this->redirectTo($updatedObject))) {
                 return $redirect;
             }
         }
