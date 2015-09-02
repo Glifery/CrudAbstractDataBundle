@@ -54,7 +54,9 @@ class CrudController extends Controller
         if ($form->isValid()) {
             $object = $this->crud->createObject($object);
 
-            return $this->redirectTo($object);
+            if ($redirect = $this->redirectTo($object)) {
+                return $redirect;
+            }
         }
 
         $view = $form->createView();
@@ -81,7 +83,9 @@ class CrudController extends Controller
         if ($form->isValid()) {
             $object = $this->crud->updateObject($criteria, $object);
 
-            return $this->redirectTo($object);
+            if ($redirect = $this->redirectTo($object)) {
+                return $redirect;
+            }
         }
 
         $view = $form->createView();
@@ -109,8 +113,7 @@ class CrudController extends Controller
 
     /**
      * @param DataObjectInterface $object
-     * @return RedirectResponse
-     * @throws RouteException
+     * @return null|RedirectResponse
      */
     protected function redirectTo(DataObjectInterface $object = null)
     {
@@ -121,22 +124,22 @@ class CrudController extends Controller
         if (null !== $this->get('request')->get('btn_create_and_list')) {
             $url = $this->crud->generateUrl('list');
         }
-        if (null !== $this->get('request')->get('btn_update_and_edit')) {
+        if ((null !== $this->get('request')->get('btn_update_and_edit')) && $object) {
             $url = $this->crud->generateObjectUrl('edit', $object);
         }
-        if (null !== $this->get('request')->get('btn_create_and_edit')) {
+        if ((null !== $this->get('request')->get('btn_create_and_edit')) && $object) {
             $url = $this->crud->generateObjectUrl('edit', $object);
         }
 
-        if (null !== $this->get('request')->get('btn_create_and_show')) {
+        if ((null !== $this->get('request')->get('btn_create_and_show')) && $object) {
             $url = $this->crud->generateObjectUrl('show', $object);
         }
 
-        if (!$url) {
-            $url = $this->crud->generateUrl('list');
+        if ($url) {
+            return $this->redirect($url);
         }
 
-        return $this->redirect($url);
+        return null;
     }
 
     /**

@@ -4,11 +4,13 @@ namespace Glifery\CrudAbstractDataBundle\Crud;
 
 use Glifery\CrudAbstractDataBundle\DataObject\DataObjectInterface;
 use Glifery\CrudAbstractDataBundle\Exception\ConfigException;
+use Glifery\CrudAbstractDataBundle\Exception\ObjectManagerException;
 use Glifery\CrudAbstractDataBundle\Exception\RouteException;
 use Glifery\CrudAbstractDataBundle\ObjectManager\ObjectManagerInterface;
 use Glifery\CrudAbstractDataBundle\Service\CrudPool;
 use Glifery\CrudAbstractDataBundle\Tools\CrudRoute;
 use Glifery\CrudAbstractDataBundle\Tools\Datagrid;
+use Glifery\CrudAbstractDataBundle\Tools\ErrorMessage;
 use Glifery\CrudAbstractDataBundle\Tools\FieldMapper;
 use Glifery\CrudAbstractDataBundle\Tools\FormTools;
 use Glifery\CrudAbstractDataBundle\Tools\ObjectCollection;
@@ -38,6 +40,9 @@ class Crud extends ContainerAware
     /** @var array */
     protected $templates;
 
+    /** @var ErrorMessage[] */
+    protected $errorMessages;
+
     /**
      * @param FormBuilder $formBuilder
      */
@@ -66,6 +71,7 @@ class Crud extends ContainerAware
     {
         $this->crudName = $crudName;
         $this->crudPool = $crudPool;
+        $this->errorMessages = array();
 
         //TODO: replace default templates from here
         $this->templates = array(
@@ -76,7 +82,8 @@ class Crud extends ContainerAware
             'inner_list_row' => 'GliferyCrudAbstractDataBundle:CRUD:list_inner_row.html.twig',
             'pager_results' => 'GliferyCrudAbstractDataBundle:Pager:results.html.twig',
             'pager_links' => 'GliferyCrudAbstractDataBundle:Pager:links.html.twig',
-            'form_theme' => 'GliferyCrudAbstractDataBundle:Form:form_admin_fields.html.twig'
+            'form_theme' => 'GliferyCrudAbstractDataBundle:Form:form_admin_fields.html.twig',
+            'notifications' => 'GliferyCrudAbstractDataBundle:Block:notifications.html.twig'
         );
     }
 
@@ -155,11 +162,25 @@ class Crud extends ContainerAware
     }
 
     /**
+     * @return \Glifery\CrudAbstractDataBundle\Tools\ErrorMessage[]
+     */
+    public function getErrorMessages()
+    {
+        return $this->errorMessages;
+    }
+
+    /**
      * @return DataObjectInterface
      */
     public function getNewInstance()
     {
-        return $this->objectManager->getNewInstance();
+        try {
+            $newInstance = $this->objectManager->getNewInstance();
+        } catch (ObjectManagerException $e) {
+            $this->registerObjectManagerException($e);
+        }
+
+        return $newInstance;
     }
 
     /**
@@ -238,27 +259,47 @@ class Crud extends ContainerAware
      */
     public function getObject(ObjectCriteria $criteria)
     {
-        $object = $this->objectManager->getObject($criteria);
+        try {
+            $object = $this->objectManager->getObject($criteria);
+        } catch (ObjectManagerException $e) {
+            $this->registerObjectManagerException($e);
+
+            return null;
+        }
 
         return $object;
     }
 
+    /**
+     * @param ObjectCriteria $criteria
+     * @return ObjectCollection
+     */
     public function getObjectCollection(ObjectCriteria $criteria)
     {
         $collection = new ObjectCollection();
-        $this->objectManager->getList($criteria, $collection);
-        $this->objectManager->getAmount($criteria, $collection);
+        try {
+            $this->objectManager->getList($criteria, $collection);
+            $this->objectManager->getAmount($criteria, $collection);
+        } catch (ObjectManagerException $e) {
+            $this->registerObjectManagerException($e);
+        }
 
         return $collection;
     }
 
     /**
      * @param DataObjectInterface $object
-     * @return DataObjectInterface
+     * @return DataObjectInterface|null
      */
     public function createObject(DataObjectInterface $object)
     {
-        $object = $this->objectManager->createObject($object);
+        try {
+            $object = $this->objectManager->createObject($object);
+        } catch(ObjectManagerException $e) {
+            $this->registerObjectManagerException($e);
+
+            return null;
+        }
 
         return $object;
     }
@@ -270,7 +311,11 @@ class Crud extends ContainerAware
      */
     public function updateObject(ObjectCriteria $criteria, DataObjectInterface $object)
     {
-        $object = $this->objectManager->updateObject($criteria, $object);
+        try {
+            $object = $this->objectManager->updateObject($criteria, $object);
+        } catch (ObjectManagerException $e) {
+            $this->registerObjectManagerException($e);
+        }
 
         return $object;
     }
@@ -281,7 +326,13 @@ class Crud extends ContainerAware
      */
     public function deleteObject(ObjectCriteria $criteria)
     {
-        $isDeleted = $this->objectManager->deleteObject($criteria);
+        try {
+            $isDeleted = $this->objectManager->deleteObject($criteria);
+        } catch (ObjectManagerException $e) {
+            $this->registerObjectManagerException($e);
+
+            return false;
+        }
 
         return $isDeleted;
     }
@@ -372,5 +423,17 @@ class Crud extends ContainerAware
         $form = $formBuilder->getForm();
 
         return $form;
+    }
+
+    /**
+     * @param ObjectManagerException $exception
+     */
+    protected function registerObjectManagerException(ObjectManagerException $exception)
+    {
+        $errorMessage = new ErrorMessage(
+            $exception->getCode() ? $exception->getCode() : 'Object Manager Error.',
+            $exception->getMessage()
+        );
+        $this->errorMessages[] = $errorMessage;
     }
 }

@@ -1,0 +1,9 @@
+{% spaceless %}
+    {% for errorMessage in crud.errorMessages %}
+        <div class="alert alert-danger">
+            <button type="button" data-dismiss="alert" aria-hidden="true" class="close">×</button>
+            <i class="fa fa-times-circle sign"></i>
+            <strong>{{ errorMessage.title }}</strong> {{ errorMessage.message }}
+        </div>
+    {% endfor %}
+{% endspaceless %}

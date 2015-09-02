@@ -2,11 +2,7 @@
 
     {% set url = action %}
 
-    {% if not crud.crudPool.routeManager.getCrudRoute(crud, url) %}
-        <div>
-            Form not available
-        </div>
-    {% else %}
+    {% if object is not null and crud.crudPool.routeManager.getCrudRoute(crud, url) %}
         {{ form_start(form) }}
             {% if form.vars.errors|length > 0 %}
                 <div class="sonata-ba-form-error">
