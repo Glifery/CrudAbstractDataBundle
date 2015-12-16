@@ -7,7 +7,6 @@ use Glifery\CrudAbstractDataBundle\Exception\ConfigException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
-use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\Router;
 
 class ControllerEventHandler
@@ -33,9 +32,9 @@ class ControllerEventHandler
      */
     public function onKernelController(FilterControllerEvent $event)
     {
-        $routeCollection = $this->router->getRouteCollection();
-        $routeName = $event->getRequest()->get('_route');
-        if ((!$currentRoute = $routeCollection->get($routeName)) || (!$crudServiceName = $currentRoute->getDefault(self::ROUTE_CRUD_ARGUMENT_NAME))) {
+        $crudServiceName = $event->getRequest()->attributes->get(self::ROUTE_CRUD_ARGUMENT_NAME);
+
+        if (empty($crudServiceName)) {
             return false;
         }
 
